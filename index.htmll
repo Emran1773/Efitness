@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<link rel="icon" href="icon.JPG">
+<link rel="apple-touch-icon" href="icon.JPG">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رحلة البطل الرياضي - لوحة التحكم الاحترافية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#080808',
+                        cardBg: '#141414',
+                        cardHover: '#1c1c1c',
+                        gold: '#D4AF37',
+                        goldLight: '#F5D76E',
+                        goldDark: '#AA820A',
+                        textMain: '#E5E7EB',
+                        textMuted: '#9CA3AF'
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'Tajawal', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        goldGlow: '0 0 15px rgba(212, 175, 55, 0.3)',
+                        goldGlowStrong: '0 0 25px rgba(212, 175, 55, 0.6)',
+                        innerGold: 'inset 0 0 10px rgba(212, 175, 55, 0.2)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #080808;
+            color: #E5E7EB;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.25);
+        }
+
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+        }
+
+        .gold-text-gradient {
+            background: linear-gradient(135deg, #F5D76E 0%, #D4AF37 50%, #AA820A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080808;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(212, 175, 55, 0.2);
+                border-color: rgba(245, 215, 110, 0.9);
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(212, 175, 55, 0.8), inset 0 0 12px rgba(212, 175, 55, 0.4);
+                border-color: rgba(212, 175, 55, 1);
+            }
+        }
+
+        .current-station-active {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+
+            .no-print, nav, button, #particleCanvas, .interactive-controls, .timer-box {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .card-print {
+                background: #ffffff !important;
+                border: 1px solid #cccccc !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+                margin-bottom: 15px !important;
+            }
+
+            .gold-text-gradient {
+                background: none !important;
+                -webkit-text-fill-color: #000000 !important;
+                color: #000000 !important;
+                font-weight: bold;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                color: #000000 !important;
+            }
+
+            th, td {
+                border: 1px solid #888888 !important;
+                padding: 6px 10px !important;
+                color: #000000 !important;
+            }
+
+            th {
+                background-color: #f0f0f0 !important;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-textMain min-h-screen flex flex-col justify-between selection:bg-gold selection:text-black">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- TOP HEADER -->
+    <header class="bg-cardBg/90 backdrop-blur-md border-b border-gold/20 sticky top-0 z-40 px-4 py-3 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-goldLight to-goldDark flex items-center justify-center text-black font-extrabold text-xl shadow-goldGlow">
+                    <i class="fa-solid font-black fa-crown"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-wide gold-text-gradient">رحلة البطل الرياضي</h1>
+                    <p class="text-xs text-textMuted hidden sm:block">نظام المتابعة والإنجاز الرياضي الاحترافي (11 محطة)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-4 no-print">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 rounded-lg bg-darkBg border border-gold/30 hover:border-gold text-gold transition-all" title="كتم/تفعيل الصوت">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+
+                <button onclick="window.print()" class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-darkBg border border-gold/40 hover:bg-gold/10 text-gold font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+                    <i class="fa-solid fa-file-pdf text-base"></i>
+                    <span>طباعة التمرينة / حفظ PDF</span>
+                </button>
+
+                <button onclick="confirmReset()" class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg bg-red-950/40 border border-red-500/40 hover:bg-red-900/50 text-red-300 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all" title="إعادة ضبط التمرين بالكامل">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden md:inline">إعادة ضبط</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="max-w-7xl mx-auto w-full px-4 py-6 space-y-8 flex-grow">
+
+        <!-- QUOTE BANNER -->
+        <section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-cardBg via-darkBg to-cardBg p-4 sm:p-6 gold-border text-center shadow-lg">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-gold/5 rounded-full blur-2xl"></div>
+            <div class="relative z-10 flex flex-col items-center justify-center space-y-2">
+                <div class="text-gold text-xs font-bold tracking-widest uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-quote-right"></i>
+                    <span>شعار اليوم الرياضي</span>
+                    <i class="fa-solid fa-quote-left"></i>
+                </div>
+                <blockquote id="quoteDisplay" class="text-lg sm:text-2xl font-extrabold text-white leading-relaxed max-w-4xl">
+                    «الانضباط هو ما يصنع الفارق حين ينتهي الحماس»
+                </blockquote>
+            </div>
+        </section>
+
+        <!-- DASHBOARD STATS -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+            <!-- Level -->
+            <div class="bg-cardBg rounded-xl p-5 gold-border flex flex-col justify-between relative overflow-hidden shadow-md">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <span class="text-xs text-textMuted uppercase font-bold">المستوى الحالي</span>
+                        <div id="levelDisplay" class="text-2xl font-black text-white mt-1">المستوى 1 : مبتدئ</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gold/10 border border-gold/40 flex items-center justify-center text-gold text-xl font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                        <span class="text-gold" id="xpText">0 XP</span>
+                        <span class="text-textMuted">المستوى التالي: 1100 XP</span>
+                    </div>
+                    <div class="w-full bg-darkBg h-3 rounded-full overflow-hidden p-0.5 border border-gold/20">
+                        <div id="xpBar" class="bg-gradient-to-r from-goldDark via-gold to-goldLight h-full rounded-full transition-all duration-500 w-0"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion -->
+            <div class="bg-cardBg rounded-xl p-5 gold-border flex flex-col justify-between shadow-md">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="text-xs text-textMuted uppercase font-bold">نسبة إكمال اليوم</span>
+                        <div id="completionPercent" class="text-3xl font-black gold-text-gradient mt-1">0%</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gold/10 border border-gold/40 flex items-center justify-center text-gold text-xl font-bold">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="w-full bg-darkBg h-3 rounded-full overflow-hidden p-0.5 border border-gold/20 mt-2">
+                    <div id="completionBar" class="bg-gradient-to-r from-goldDark via-gold to-goldLight h-full rounded-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Time Counter -->
+            <div class="bg-cardBg rounded-xl p-5 gold-border flex flex-col justify-between shadow-md">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="text-xs text-textMuted uppercase font-bold">الوقت المنجز</span>
+                        <div id="timeCounter" class="text-3xl font-black text-white mt-1">0 <span class="text-sm font-normal text-textMuted">/ 98 دقيقة</span></div>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-gold/10 border border-gold/40 flex items-center justify-center text-gold text-xl font-bold">
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+                </div>
+                <p class="text-xs text-textMuted mt-3">يتم حسابه تلقائيًا مع المحطات الـ 11</p>
+            </div>
+
+            <!-- Stars & Badges -->
+            <div class="bg-cardBg rounded-xl p-5 gold-border flex flex-col justify-between shadow-md">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs text-textMuted uppercase font-bold">النجوم المكتسبة</span>
+                        <div class="text-2xl font-black text-gold mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-star"></i>
+                            <span id="starsCount">0</span> <span class="text-xs text-textMuted font-normal">/ 11</span>
+                        </div>
+                    </div>
+                    <div class="text-left border-r border-gold/20 pr-4">
+                        <span class="text-xs text-textMuted uppercase font-bold">الأوسمة</span>
+                        <div class="text-2xl font-black text-white mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-award text-gold"></i>
+                            <span id="badgesCount">0</span> <span class="text-xs text-textMuted font-normal">/ 8</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 text-xs text-goldLight flex items-center gap-1">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>لكل محطة: +100 XP ونجمة ذهبية</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- STATIONS MAP (11 STATIONS) -->
+        <section class="space-y-4 no-print">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-gold"></i>
+                    <span>مسار المحطات التفاعلي (11 محطة متكاملة)</span>
+                </h2>
+                <span class="text-xs text-textMuted hidden sm:inline">اضغط على أي محطة للانتقال للتمارين مباشرة</span>
+            </div>
+
+            <div class="bg-cardBg rounded-2xl p-4 sm:p-6 gold-border shadow-xl">
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2.5 relative">
+                    <div id="stationsMap" class="contents">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRINT HEADER (PRINT ONLY) -->
+        <div class="hidden print-only mb-6 border-b-2 border-black pb-4">
+            <h1 class="text-3xl font-bold text-black mb-2">جدول تمارين البطل الرياضي - خطة الـ 98 دقيقة</h1>
+            <p class="text-sm text-gray-700">دليل التمارين الميداني الشامل | 11 محطة متكاملة للقوة، العقلة، السرعة، والمرونة</p>
+            <div class="mt-4 flex justify-between text-xs border-t border-gray-300 pt-2">
+                <span>تاريخ الطباعة: <script>document.write(new Date().toLocaleDateString('ar-SA'));</script></span>
+                <span>إجمالي الوقت: 98 دقيقة</span>
+                <span>المستهدف: القوة العلوية، الجذع، واللياقة</span>
+            </div>
+        </div>
+
+        <!-- ACTIVE STATION SECTION -->
+        <section id="stationDetailSection" class="bg-cardBg rounded-2xl p-4 sm:p-8 gold-border shadow-2xl relative">
+            <div id="activeStationContent"></div>
+        </section>
+
+        <!-- BADGES SECTION -->
+        <section class="bg-cardBg rounded-2xl p-5 sm:p-6 gold-border shadow-xl no-print space-y-4">
+            <div class="flex justify-between items-center border-b border-gold/10 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-gold"></i>
+                    <span>أوسمة الإنجاز والتطوير</span>
+                </h3>
+                <span class="text-xs text-gold" id="unlockedBadgesText">0 من 8 مفتوحة</span>
+            </div>
+
+            <div id="badgesGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3"></div>
+        </section>
+
+        <!-- FULL WORKOUT TABLES FOR PRINT -->
+        <section class="hidden print-only space-y-6">
+            <h2 class="text-2xl font-bold text-black border-b border-black pb-2">تفاصيل المحطات الـ 11 الكاملة</h2>
+            
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 1: المشاية (15 دقيقة)</h3>
+                <p class="text-sm">تدرج بالسرعات من 6 إلى 14 كم/ساعة.</p>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 2: الإحماء وحركة المفاصل (6 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 3: العقلة الاحترافية - 50 رفعة (8 دقائق)</h3>
+                <p class="text-sm">توزيع الـ 50 رفعة على مجموعات (مثال: 5 جولات × 10 عقلات) مع راحة قصيرة للتحكم الفائق بالقوة العلوية.</p>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 4: تدريبات السرعة (8 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 5: الرشاقة والحركة (7 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 6: نط الحبل (10 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 7: القوة العامة (18 دقيقة)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 8: تثبيت الكتفين (8 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 9: عضلات البطن والجذع (7 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 10: الجولة الختامية بالحبل (3 دقائق)</h3>
+            </div>
+            <div class="card-print p-4">
+                <h3 class="font-bold text-lg text-black mb-2">المحطة 11: التهدئة والإطالات (8 دقائق)</h3>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-cardBg border-t border-gold/20 py-4 px-4 text-center text-xs text-textMuted no-print mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                <span class="gold-text-gradient font-bold">رحلة البطل الرياضي</span> &copy; 2026 - نظام التدريب الاحترافي المتكامل
+            </div>
+            <div class="flex items-center gap-4 text-gold/80">
+                <span><i class="fa-solid fa-fire ml-1"></i> 11 محطة</span>
+                <span><i class="fa-solid fa-stopwatch ml-1"></i> 98 دقيقة</span>
+                <span><i class="fa-solid fa-trophy ml-1"></i> 1100 XP</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ACHIEVEMENT MODAL -->
+    <div id="achievementModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 hidden p-4 no-print">
+        <div class="bg-cardBg gold-border-glow rounded-2xl p-6 sm:p-8 max-w-md w-full text-center relative space-y-4 transform transition-all duration-300 scale-95" id="achievementCard">
+            <div class="w-20 h-20 bg-gradient-to-tr from-goldDark to-goldLight rounded-full mx-auto flex items-center justify-center text-black text-3xl shadow-goldGlow">
+                <i id="achievementIcon" class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 id="achievementTitle" class="text-2xl font-black gold-text-gradient">إنجاز جديد!</h3>
+            <p id="achievementDesc" class="text-sm text-textMain leading-relaxed">لقد خطوت خطوة جبارة نحو القمة.</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-gradient-to-r from-gold to-goldLight text-black font-extrabold rounded-xl shadow-goldGlow hover:opacity-90 transition-all">
+                متابعة البطل <i class="fa-solid fa-arrow-left mr-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const treadmillSchedule = [
+            { startSec: 0, endSec: 120, label: "0–2 دقيقة", speed: 6 },
+            { startSec: 120, endSec: 240, label: "2–4 دقيقة", speed: 8 },
+            { startSec: 240, endSec: 360, label: "4–6 دقائق", speed: 10 },
+            { startSec: 360, endSec: 480, label: "6–8 دقائق", speed: 12 },
+            { startSec: 480, endSec: 540, label: "8–9 دقائق", speed: 14 },
+            { startSec: 540, endSec: 600, label: "9–10 دقائق", speed: 1 },
+            { startSec: 600, endSec: 720, label: "10–12 دقيقة", speed: 8 },
+            { startSec: 720, endSec: 780, label: "12–13 دقيقة", speed: 14 },
+            { startSec: 780, endSec: 900, label: "13–15 دقيقة", speed: 4 }
+        ];
+
+        // 11 STATIONS (INCLUDING PULL-UPS 50 REPS)
+        const STATIONS = [
+            { id: 1, name: "المشاية", duration: 15, icon: "fa-person-running", key: "treadmill" },
+            { id: 2, name: "الإحماء والمفاصل", duration: 6, icon: "fa-child-reaching", key: "warmup" },
+            { id: 3, name: "العقلة (50 رفعة)", duration: 8, icon: "fa-hand-fist", key: "pullups" },
+            { id: 4, name: "تدريبات السرعة", duration: 8, icon: "fa-gauge-high", key: "speed" },
+            { id: 5, name: "الرشاقة والحركة", duration: 7, icon: "fa-person-walking-arrow-loop-left", key: "agility" },
+            { id: 6, name: "نط الحبل", duration: 10, icon: "fa-bolt", key: "rope" },
+            { id: 7, name: "القوة العامة", duration: 18, icon: "fa-dumbbell", key: "strength" },
+            { id: 8, name: "تثبيت الكتفين", duration: 8, icon: "fa-child", key: "shoulders" },
+            { id: 9, name: "عضلات الجذع", duration: 7, icon: "fa-mitten", key: "core" },
+            { id: 10, name: "الختام بالحبل", duration: 3, icon: "fa-fire", key: "ropeFinish" },
+            { id: 11, name: "التهدئة والإطالات", duration: 8, icon: "fa-spa", key: "cooldown" }
+        ];
+
+        const QUOTES = [
+            "«الانضباط هو ما يصنع الفارق حين ينتهي الحماس»",
+            "«كل محطة مكتملة دليل على أنك تتقدم نحو القمة»",
+            "«تحدي الـ 50 رفعة عقلة يصنع عضلات ظهر حديدية»",
+            "«البطل لا يقيس يومه بالشعور، بل بما أنجزه»",
+            "«خطوة أخرى، نقطة أخرى، ومستوى أعلى»",
+            "«الإرادة العالية تحول كل تمرين صعب إلى نقطة قوة جديدة»",
+            "«العرق اليوم هو وسام الفخر غداً»"
+        ];
+
+        const BADGES = [
+            { id: "b1", title: "البداية الذهبية", desc: "إكمال أول محطة بنجاح", icon: "fa-star" },
+            { id: "b2", title: "أسطورة العقلة", desc: "إنجاز 50 رفعة عقلة كاملة", icon: "fa-hand-fist" },
+            { id: "b3", title: "ملك الحبل", desc: "إكمال 1000 قفزة حبل", icon: "fa-cubes-stacked" },
+            { id: "b4", title: "قوة الإرادة", desc: "إكمال محطة القوة العامة", icon: "fa-dumbbell" },
+            { id: "b5", title: "درع الكتفين", desc: "إكمال تمارين تثبيت الكتفين", icon: "fa-shield" },
+            { id: "b6", title: "سيد الانضباط", desc: "إكمال 6 محطات في التمرين", icon: "fa-fire-flame-curved" },
+            { id: "b7", title: "البطل الكامل", desc: "إكمال المحطات الـ 11 بالكامل", icon: "fa-crown" },
+            { id: "b8", title: "صاحب 1100 XP", desc: "جمع نقاط الخبرة الكاملة", icon: "fa-medal" }
+        ];
+
+        let state = {
+            completedStations: [],
+            currentStationId: 1,
+            jumpCount: 0,
+            pullupCount: 0,
+            soundEnabled: true
+        };
+
+        let timerInterval = null;
+        let activeTimerSeconds = 0;
+        let isTimerRunning = false;
+
+        function playBeep(freq = 600, duration = 0.15) {
+            if (!state.soundEnabled) return;
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function playSuccessFanfare() {
+            if (!state.soundEnabled) return;
+            let notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => playBeep(freq, 0.2), idx * 120);
+            });
+        }
+
+        function toggleAudio() {
+            state.soundEnabled = !state.soundEnabled;
+            saveState();
+            updateAudioUI();
+        }
+
+        function updateAudioUI() {
+            const icon = document.getElementById('soundIcon');
+            if (state.soundEnabled) {
+                icon.className = "fa-solid fa-volume-high text-gold";
+            } else {
+                icon.className = "fa-solid fa-volume-xmark text-textMuted";
+            }
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('heroWorkoutState11');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch (e) {}
+            }
+            updateDashboard();
+            renderStationsMap();
+            renderBadges();
+            loadStationDetail(state.currentStationId);
+            updateAudioUI();
+        }
+
+        function saveState() {
+            localStorage.setItem('heroWorkoutState11', JSON.stringify(state));
+            updateDashboard();
+            renderStationsMap();
+            renderBadges();
+            checkBadgeUnlocks();
+        }
+
+        function confirmReset() {
+            if (confirm("هل أنت تأكد من إعادة ضبط التمرينة بالكامل ومسح جميع الإنجازات والتقدم؟")) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                state.completedStations = [];
+                state.currentStationId = 1;
+                state.jumpCount = 0;
+                state.pullupCount = 0;
+                saveState();
+                loadStationDetail(1);
+                playBeep(300, 0.3);
+            }
+        }
+
+        function updateDashboard() {
+            const completedCount = state.completedStations.length;
+            const xp = completedCount * 100;
+            const completionPercentage = Math.round((completedCount / 11) * 100);
+
+            let totalMinutesCompleted = 0;
+            state.completedStations.forEach(id => {
+                const st = STATIONS.find(s => s.id === id);
+                if (st) totalMinutesCompleted += st.duration;
+            });
+
+            document.getElementById('xpText').innerText = `${xp} / 1100 XP`;
+            document.getElementById('xpBar').style.width = `${(xp / 1100) * 100}%`;
+
+            document.getElementById('completionPercent').innerText = `${completionPercentage}%`;
+            document.getElementById('completionBar').style.width = `${completionPercentage}%`;
+
+            document.getElementById('timeCounter').innerHTML = `${totalMinutesCompleted} <span class="text-sm font-normal text-textMuted">/ 98 دقيقة</span>`;
+            document.getElementById('starsCount').innerText = `${completedCount} / 11`;
+
+            let levelText = "المستوى 1 : مبتدئ";
+            if (xp >= 1100) levelText = "المستوى 5 : الأسطورة الذهبية المطلقة";
+            else if (xp >= 800) levelText = "المستوى 4 : محترف متقدم خارق";
+            else if (xp >= 500) levelText = "المستوى 3 : رياضي ملهم وقوي";
+            else if (xp >= 200) levelText = "المستوى 2 : عازم ومكافح";
+            
+            document.getElementById('levelDisplay').innerText = levelText;
+
+            const quoteIndex = completedCount % QUOTES.length;
+            document.getElementById('quoteDisplay').innerText = QUOTES[quoteIndex];
+        }
+
+        function renderStationsMap() {
+            const container = document.getElementById('stationsMap');
+            container.innerHTML = '';
+
+            STATIONS.forEach((st) => {
+                const isCompleted = state.completedStations.includes(st.id);
+                const isCurrent = state.currentStationId === st.id;
+
+                let cardClasses = "flex flex-col items-center justify-center p-2.5 rounded-xl transition-all cursor-pointer relative text-center border ";
+
+                if (isCompleted) {
+                    cardClasses += "bg-gold/15 border-gold text-gold shadow-goldGlow";
+                } else if (isCurrent) {
+                    cardClasses += "bg-cardBg border-goldLight text-white current-station-active";
+                } else {
+                    cardClasses += "bg-darkBg/60 border-gold/10 text-textMuted hover:border-gold/30 hover:text-textMain";
+                }
+
+                const btn = document.createElement('button');
+                btn.className = cardClasses;
+                btn.onclick = () => switchStation(st.id);
+
+                btn.innerHTML = `
+                    <div class="text-[10px] font-bold mb-0.5 opacity-75">#${st.id}</div>
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs mb-1 ${isCompleted ? 'bg-gold text-black' : (isCurrent ? 'bg-gold/20 text-gold' : 'bg-darkBg text-textMuted')}">
+                        <i class="fa-solid ${isCompleted ? 'fa-check' : st.icon}"></i>
+                    </div>
+                    <div class="text-[11px] font-bold truncate w-full">${st.name}</div>
+                    <div class="text-[9px] opacity-70 mt-0.5">${st.duration} د</div>
+                `;
+
+                container.appendChild(btn);
+            });
+        }
+
+        function switchStation(id) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            state.currentStationId = id;
+            renderStationsMap();
+            loadStationDetail(id);
+            playBeep(700, 0.08);
+        }
+
+        function checkBadgeUnlocks() {
+            let unlockedIds = [];
+            const completed = state.completedStations;
+            const xp = completed.length * 100;
+
+            if (completed.length >= 1) unlockedIds.push("b1");
+            if (state.pullupCount >= 50 || completed.includes(3)) unlockedIds.push("b2");
+            if (state.jumpCount >= 1000 || completed.includes(6)) unlockedIds.push("b3");
+            if (completed.includes(7)) unlockedIds.push("b4");
+            if (completed.includes(8)) unlockedIds.push("b5");
+            if (completed.length >= 6) unlockedIds.push("b6");
+            if (completed.length === 11) unlockedIds.push("b7");
+            if (xp >= 1100) unlockedIds.push("b8");
+
+            return unlockedIds;
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badgesGrid');
+            container.innerHTML = '';
+
+            const unlocked = checkBadgeUnlocks();
+            document.getElementById('badgesCount').innerText = unlocked.length;
+            document.getElementById('unlockedBadgesText').innerText = `${unlocked.length} من 8 مفتوحة`;
+
+            BADGES.forEach(b => {
+                const isUnlocked = unlocked.includes(b.id);
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border text-center flex flex-col items-center justify-center transition-all ${
+                    isUnlocked 
+                    ? 'bg-gradient-to-b from-cardBg to-gold/10 border-gold/50 text-gold shadow-goldGlow' 
+                    : 'bg-darkBg/50 border-gold/10 text-textMuted opacity-50 grayscale'
+                }`;
+
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg mb-2 ${isUnlocked ? 'bg-gold text-black shadow-goldGlow' : 'bg-cardBg text-textMuted'}">
+                        <i class="fa-solid ${b.icon}"></i>
+                    </div>
+                    <div class="text-xs font-extrabold text-white mb-0.5">${b.title}</div>
+                    <div class="text-[10px] text-textMuted leading-tight">${b.desc}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function loadStationDetail(id) {
+            const st = STATIONS.find(s => s.id === id);
+            const container = document.getElementById('activeStationContent');
+            const isCompleted = state.completedStations.includes(id);
+
+            let html = `
+                <div class="flex flex-wrap justify-between items-center border-b border-gold/20 pb-4 mb-6 gap-4">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-goldDark to-goldLight text-black flex items-center justify-center text-2xl font-black shadow-goldGlow">
+                            <i class="fa-solid ${st.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gold font-bold">المحطة رقم #${st.id}</div>
+                            <h2 class="text-2xl sm:text-3xl font-black text-white">${st.name}</h2>
+                            <p class="text-xs text-textMuted mt-0.5">المدة المستهدفة: ${st.duration} دقيقة | +100 XP</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleStationCompletion(${st.id})" class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                            isCompleted 
+                            ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-600/30' 
+                            : 'bg-gradient-to-r from-gold to-goldLight text-black shadow-goldGlow hover:opacity-90'
+                        }">
+                            <i class="fa-solid ${isCompleted ? 'fa-circle-check' : 'fa-check'}"></i>
+                            <span>${isCompleted ? 'المحطة مكتملة (إلغاء)' : 'إنهاء المحطة واكتساب 100 XP'}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            switch (st.key) {
+                case 'treadmill': html += renderTreadmillUI(); break;
+                case 'warmup': html += renderWarmupUI(); break;
+                case 'pullups': html += renderPullupsUI(); break;
+                case 'speed': html += renderSpeedUI(); break;
+                case 'agility': html += renderAgilityUI(); break;
+                case 'rope': html += renderRopeUI(); break;
+                case 'strength': html += renderStrengthUI(); break;
+                case 'shoulders': html += renderShouldersUI(); break;
+                case 'core': html += renderCoreUI(); break;
+                case 'ropeFinish': html += renderRopeFinishUI(); break;
+                case 'cooldown': html += renderCooldownUI(); break;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleStationCompletion(id) {
+            const index = state.completedStations.indexOf(id);
+            if (index > -1) {
+                state.completedStations.splice(index, 1);
+                playBeep(400, 0.1);
+            } else {
+                state.completedStations.push(id);
+                triggerGoldCelebration();
+                playSuccessFanfare();
+
+                const count = state.completedStations.length;
+                if (count === 6) {
+                    showModal("منتصف الرحلة الرياضية!", "أكملت أكثر من نصف المحطات بنجاح. عزيمتك لا تُقهر!", "fa-fire-flame-curved");
+                } else if (count === 11) {
+                    showModal("إنجاز البطل التام 100%!", "تهانينا! لقد أكملت المحطات الـ 11 بالكامل بنجاح واستحسنت الوسام الأسطوري الذهبي!", "fa-crown");
+                }
+            }
+            saveState();
+            loadStationDetail(id);
+        }
+
+        /* ================= STATION TEMPLATES ================= */
+
+        function renderTreadmillUI() {
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-3">
+                        <h3 class="text-sm font-bold text-gold uppercase tracking-wider">جدول السرعات الدقيق (15 دقيقة)</h3>
+                        <div class="overflow-x-auto rounded-xl border border-gold/20 bg-darkBg">
+                            <table class="w-full text-sm text-right">
+                                <thead class="bg-cardBg text-gold text-xs border-b border-gold/20">
+                                    <tr><th class="p-3">الزمن</th><th class="p-3">السرعة المحددة</th><th class="p-3 text-center">الحالة</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-gold/10">
+                                    ${treadmillSchedule.map((item, idx) => `
+                                        <tr id="tmRow_${idx}" class="transition-colors hover:bg-gold/5">
+                                            <td class="p-3 font-bold text-white">${item.label}</td>
+                                            <td class="p-3 font-extrabold text-gold">${item.speed} كم/ساعة</td>
+                                            <td class="p-3 text-center text-xs text-textMuted" id="tmStatus_${idx}">في الانتظار</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-darkBg rounded-xl p-6 gold-border flex flex-col items-center justify-center text-center space-y-4">
+                        <span class="text-xs text-gold uppercase font-bold">مؤشر السرعة والمؤقت المرئي</span>
+                        <div class="text-5xl font-black font-mono tracking-wider gold-text-gradient" id="tmTimerDisplay">15:00</div>
+                        <div class="w-full bg-cardBg rounded-xl p-4 border border-gold/20">
+                            <div class="text-xs text-textMuted">السرعة الحالية الموصى بها</div>
+                            <div id="tmCurrentSpeed" class="text-3xl font-black text-white mt-1">6 <span class="text-sm font-normal text-gold">كم/ساعة</span></div>
+                        </div>
+                        <div class="flex gap-2 w-full">
+                            <button id="tmStartBtn" onclick="toggleTreadmillTimer()" class="flex-1 py-3 rounded-xl bg-gold text-black font-extrabold text-sm shadow-goldGlow hover:opacity-90 transition-all">
+                                <i class="fa-solid fa-play ml-1"></i> بدء المؤقت
+                            </button>
+                            <button onclick="resetTreadmillTimer()" class="px-4 py-3 rounded-xl bg-cardBg border border-gold/30 text-gold font-bold text-sm hover:bg-gold/10">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // TREADMILL TIMER LOGIC
+        function toggleTreadmillTimer() {
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                document.getElementById('tmStartBtn').innerHTML = '<i class="fa-solid fa-play ml-1"></i> استئناف';
+            } else {
+                if (activeTimerSeconds >= 900) activeTimerSeconds = 0;
+                isTimerRunning = true;
+                document.getElementById('tmStartBtn').innerHTML = '<i class="fa-solid fa-pause ml-1"></i> إيقاف مؤقت';
+                timerInterval = setInterval(() => {
+                    activeTimerSeconds++;
+                    updateTreadmillUI();
+                    if (activeTimerSeconds >= 900) {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        playSuccessFanfare();
+                        alert("انتهى تمرين المشاية بنجاح!");
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTreadmillTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            activeTimerSeconds = 0;
+            updateTreadmillUI();
+            const startBtn = document.getElementById('tmStartBtn');
+            if (startBtn) startBtn.innerHTML = '<i class="fa-solid fa-play ml-1"></i> بدء المؤقت';
+        }
+
+        function updateTreadmillUI() {
+            const display = document.getElementById('tmTimerDisplay');
+            if (!display) return;
+            const remaining = Math.max(0, 900 - activeTimerSeconds);
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+            display.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            let currentSpeed = 6;
+            treadmillSchedule.forEach((item, idx) => {
+                const row = document.getElementById(`tmRow_${idx}`);
+                const status = document.getElementById(`tmStatus_${idx}`);
+                if (activeTimerSeconds >= item.startSec && activeTimerSeconds < item.endSec) {
+                    currentSpeed = item.speed;
+                    if (row) row.className = "bg-gold/20 font-bold border-r-4 border-gold";
+                    if (status) status.innerText = "جاري الآن";
+                } else if (activeTimerSeconds >= item.endSec) {
+                    if (row) row.className = "opacity-50 line-through bg-darkBg";
+                    if (status) status.innerText = "مكتمل";
+                } else {
+                    if (row) row.className = "hover:bg-gold/5";
+                    if (status) status.innerText = "في الانتظار";
+                }
+            });
+            const speedEl = document.getElementById('tmCurrentSpeed');
+            if (speedEl) speedEl.innerHTML = `${currentSpeed} <span class="text-sm font-normal text-gold">كم/ساعة</span>`;
+        }
+
+        // PULL-UPS STATION 3 (50 REPS)
+        function renderPullupsUI() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-darkBg p-6 rounded-xl border border-gold/20 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gold mb-2"><i class="fa-solid fa-hand-fist ml-2"></i> تحدي الـ 50 رفعة عقلة</h3>
+                            <p class="text-xs text-textMuted leading-relaxed mb-4">
+                                الهدف: تنفيذ 50 رفعة عقلة قوية وعالية الجودة. قسّمها إلى مجموعات (مثال: 5 جولات × 10 عقلات، أو 10 جولات × 5 عقلات) مع راحة 60-90 ثانية بين الجولات لضمان كامل القوة.
+                            </p>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <button onclick="addPullups(10)" class="px-4 py-2.5 bg-gold/20 text-gold border border-gold/40 rounded-xl font-bold text-xs hover:bg-gold/30">
+                                    + 10 عقلات (مجموعة)
+                                </button>
+                                <button onclick="addPullups(5)" class="px-4 py-2.5 bg-gold/10 text-gold border border-gold/20 rounded-xl font-bold text-xs hover:bg-gold/20">
+                                    + 5 عقلات
+                                </button>
+                                <button onclick="addPullups(-5)" class="px-3 py-2.5 bg-cardBg text-textMuted border border-gold/20 rounded-xl font-bold text-xs">
+                                    - 5
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="text-center bg-cardBg p-6 rounded-2xl border border-gold/30 space-y-2">
+                            <span class="text-xs text-textMuted font-bold uppercase">إجمالي الرفعَات المسجلة</span>
+                            <div class="text-5xl font-black gold-text-gradient">${state.pullupCount} / 50</div>
+                            <div class="w-full bg-darkBg h-3 rounded-full overflow-hidden p-0.5 border border-gold/20 mt-2">
+                                <div class="bg-gradient-to-r from-goldDark to-goldLight h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, (state.pullupCount/50)*100)}%"></div>
+                            </div>
+                            <div class="text-xs text-gold font-bold mt-1">المستوى العلوي للظهر والذراعين</div>
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(480, "مؤقت محطة العقلة (8 دقائق)")}
+                </div>
+            `;
+        }
+
+        function addPullups(num) {
+            state.pullupCount = Math.max(0, state.pullupCount + num);
+            if (state.pullupCount >= 50 && !state.completedStations.includes(3)) {
+                state.completedStations.push(3);
+                triggerGoldCelebration();
+                playSuccessFanfare();
+            }
+            saveState();
+            loadStationDetail(3);
+        }
+
+        // WARMUP STATION 2
+        function renderWarmupUI() {
+            const exercises = [
+                "تدوير الكتفين والذراعين (دقيقة واحدة)",
+                "فتح الذراعين وإغلاقهما وتحريك الرسغين (دقيقة واحدة)",
+                "حركة الكاحلين ورفع الكعبين (دقيقة واحدة)",
+                "10 قرفصاءات خفيفة مع انسيابية الحركة (دقيقة واحدة)",
+                "اندفاع خلفي متناوب (دقيقة واحدة)",
+                "حركة ديناميكية للوركين والجذع (دقيقة واحدة)"
+            ];
+            return `
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-gold uppercase tracking-wider">تمارين الإحماء وحركة المفاصل (6 دقائق إجمالاً)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        ${exercises.map((ex, idx) => `
+                            <div class="bg-darkBg p-4 rounded-xl border border-gold/20 flex items-start gap-3">
+                                <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center font-bold text-xs shrink-0">${idx+1}</div>
+                                <div class="text-sm text-textMain font-medium">${ex}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${renderGenericTimerBlock(360, "الإحماء الشامل (6 دقائق)")}
+                </div>
+            `;
+        }
+
+        // SPEED STATION 4
+        function renderSpeedUI() {
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-darkBg p-5 rounded-xl border border-gold/20 space-y-2">
+                            <div class="flex justify-between items-center text-gold font-bold">
+                                <span>1. الدراجة السريعة</span>
+                                <span class="text-xs bg-gold/10 px-2 py-1 rounded">3 دقائق</span>
+                            </div>
+                            <p class="text-xs text-textMuted leading-relaxed">دقيقة واحدة سهلة، ثم 3 تكرارات: (10 ثوانٍ سريعة أقصى سرعة + 30 ثانية سهلة).</p>
+                        </div>
+                        <div class="bg-darkBg p-5 rounded-xl border border-gold/20 space-y-2">
+                            <div class="flex justify-between items-center text-gold font-bold">
+                                <span>2. خطوات القدمين السريعة</span>
+                                <span class="text-xs bg-gold/10 px-2 py-1 rounded">5 دقائق</span>
+                            </div>
+                            <p class="text-xs text-textMuted leading-relaxed">5 جولات: (10 ثوانٍ سريعة أقصى سرعة + 50 ثانية راحة إيجابية).</p>
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(480, "مؤقت تدريبات السرعة (8 دقائق)")}
+                </div>
+            `;
+        }
+
+        // AGILITY STATION 5
+        function renderAgilityUI() {
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-darkBg p-4 rounded-xl border border-gold/20 text-center space-y-2">
+                            <div class="text-gold font-bold">سلم الرشاقة</div>
+                            <div class="text-2xl font-black text-white">3 دقائق</div>
+                            <p class="text-xs text-textMuted">الحركة للأمام والجانبين بدقة وسرعة</p>
+                        </div>
+                        <div class="bg-darkBg p-4 rounded-xl border border-gold/20 text-center space-y-2">
+                            <div class="text-gold font-bold">الحواجز المنخفضة</div>
+                            <div class="text-2xl font-black text-white">دقيقتان</div>
+                            <p class="text-xs text-textMuted">المرور السريع للأمام والجانبين</p>
+                        </div>
+                        <div class="bg-darkBg p-4 rounded-xl border border-gold/20 text-center space-y-2">
+                            <div class="text-gold font-bold">منصة الخطوة (Step)</div>
+                            <div class="text-2xl font-black text-white">دقيقتان</div>
+                            <p class="text-xs text-textMuted">الصعود والنزول السريع بتناغم</p>
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(420, "مؤقت جولة الرشاقة (7 دقائق)")}
+                </div>
+            `;
+        }
+
+        // ROPE STATION 6
+        function renderRopeUI() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-darkBg p-6 rounded-xl border border-gold/20 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gold mb-2">تحدي الـ 1000 قفزة</h3>
+                            <p class="text-xs text-textMuted leading-relaxed mb-4">
+                                المطلوب: 10 مجموعات، كل مجموعة 100 قفزة، مع راحة 20–30 ثانية بين المجموعات.
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <button onclick="addJumps(100)" class="px-4 py-2 bg-gold/20 text-gold border border-gold/40 rounded-xl font-bold text-xs hover:bg-gold/30">
+                                    + إنهاء مجموعة (100 قفزة)
+                                </button>
+                                <button onclick="addJumps(-100)" class="px-3 py-2 bg-cardBg text-textMuted border border-gold/20 rounded-xl font-bold text-xs">
+                                    - 100
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-center bg-cardBg p-6 rounded-2xl border border-gold/30 space-y-2">
+                            <span class="text-xs text-textMuted font-bold uppercase">إجمالي القفزات المسجلة</span>
+                            <div class="text-5xl font-black gold-text-gradient">${state.jumpCount} / 1000</div>
+                            <div class="w-full bg-darkBg h-3 rounded-full overflow-hidden p-0.5 border border-gold/20 mt-2">
+                                <div class="bg-gradient-to-r from-goldDark to-goldLight h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, (state.jumpCount/1000)*100)}%"></div>
+                            </div>
+                            <div class="text-xs text-gold font-bold mt-1">المجموعات المنجزة: ${Math.floor(state.jumpCount/100)} من 10</div>
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(600, "مؤقت نط الحبل (10 دقائق)")}
+                </div>
+            `;
+        }
+
+        function addJumps(num) {
+            state.jumpCount = Math.max(0, state.jumpCount + num);
+            if (state.jumpCount >= 1000 && !state.completedStations.includes(6)) {
+                state.completedStations.push(6);
+                triggerGoldCelebration();
+                playSuccessFanfare();
+            }
+            saveState();
+            loadStationDetail(6);
+        }
+
+        // STRENGTH STATION 7
+        function renderStrengthUI() {
+            const exercises = [
+                "1. القرفصاء بوزن الجسم (Bodyweight Squat)",
+                "2. الاندفاع الخلفي (Reverse Lunges)",
+                "3. الضغط الأرضي أو باستخدام منصة الخطوة",
+                "4. سحب شريط المقاومة (Band Row)",
+                "5. انحناء الورك باستخدام دمبل خفيف (Hip Hinge)"
+            ];
+            return `
+                <div class="space-y-6">
+                    <div class="bg-darkBg p-5 rounded-xl border border-gold/20 space-y-3">
+                        <div class="flex justify-between items-center text-gold font-bold">
+                            <span>نظام الجولات (3 جولات كاملة)</span>
+                            <span class="text-xs bg-gold/10 px-3 py-1 rounded">18 دقيقة</span>
+                        </div>
+                        <p class="text-xs text-textMuted">كل تمرين: 40 ثانية أداء + 20 ثانية للانتقال. راحة دقيقة كاملة بين الجولات.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-3">
+                            ${exercises.map(ex => `<div class="p-2.5 bg-cardBg rounded-lg border border-gold/10 text-xs text-white font-medium">${ex}</div>`).join('')}
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(1080, "مؤقت جولة القوة العامة (18 دقيقة)")}
+                </div>
+            `;
+        }
+
+        // SHOULDERS STATION 8
+        function renderShouldersUI() {
+            const items = [
+                "الدوران الخارجي بشريط المقاومة: مجموعتان (30 ثانية لكل ذراع)",
+                "فتح شريط المقاومة (Band Pull-aparts): مجموعتان (30 ثانية)",
+                "رفع الذراعين على شكل Y بوضعية الانبطاح: مجموعتان (30 ثانية)",
+                "رفع جانبي خفيف باستخدام زجاجتي ماء: مجموعتان (20 ثانية)",
+                "راحة 20–30 ثانية بين المجموعات حسب الحاجة"
+            ];
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${items.map((item, idx) => `
+                            <div class="bg-darkBg p-4 rounded-xl border border-gold/20 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-gold/20 text-gold font-bold text-xs flex items-center justify-center shrink-0">${idx+1}</div>
+                                <div class="text-xs text-white font-medium leading-relaxed">${item}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${renderGenericTimerBlock(480, "مؤقت تثبيت الكتفين (8 دقائق)")}
+                </div>
+            `;
+        }
+
+        // CORE STATION 9
+        function renderCoreUI() {
+            const exercises = [
+                "البلانك (Plank): 30 ثانية",
+                "البلانك الجانبي الأيمن: 20 ثانية",
+                "البلانك الجانبي الأيسر: 20 ثانية",
+                "تمرين Dead Bug: 30 ثانية",
+                "تمرين Bird Dog: 30 ثانية"
+            ];
+            return `
+                <div class="space-y-6">
+                    <div class="bg-darkBg p-5 rounded-xl border border-gold/20 space-y-3">
+                        <div class="text-gold font-bold text-sm">جولتان من التمارين التالية:</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            ${exercises.map(ex => `<div class="bg-cardBg p-3 rounded-xl border border-gold/10 text-xs text-white font-bold"><i class="fa-solid fa-check text-gold ml-2"></i> ${ex}</div>`).join('')}
+                        </div>
+                    </div>
+                    ${renderGenericTimerBlock(420, "مؤقت عضلات البطن والجذع (7 دقائق)")}
+                </div>
+            `;
+        }
+
+        // ROPE FINISH STATION 10
+        function renderRopeFinishUI() {
+            return `
+                <div class="space-y-6">
+                    <div class="bg-darkBg p-5 rounded-xl border border-gold/20 space-y-2 text-center">
+                        <h3 class="text-lg font-bold text-gold">الجولة الختامية السريعة بالحبل</h3>
+                        <p class="text-xs text-textMuted max-w-lg mx-auto">3 جولات حاسمة: (20 ثانية نط حبل سريع + 40 ثانية راحة استشفائية).</p>
+                    </div>
+                    ${renderGenericTimerBlock(180, "مؤقت الجولة الختامية (3 دقائق)")}
+                </div>
+            `;
+        }
+
+        // COOLDOWN STATION 11
+        function renderCooldownUI() {
+            const stretches = [
+                "دقيقتان: مشي بطيء لتهدئة نبضات القلب",
+                "دقيقة: إطالة عضلات الساق والكاحل",
+                "دقيقة: إطالة عضلات الفخذ الأمامية والخلفية",
+                "دقيقة: إطالة عضلات الصدر",
+                "دقيقة: إطالة الظهر والعضلات الجانبية",
+                "دقيقة: إطالات لطيفة للكتفين والذراعين",
+                "دقيقة: تنفس هادئ وعميق"
+            ];
+            return `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        ${stretches.map(s => `<div class="bg-darkBg p-3.5 rounded-xl border border-gold/20 flex items-center gap-3"><i class="fa-solid fa-spa text-gold"></i><span class="text-xs text-white font-medium">${s}</span></div>`).join('')}
+                    </div>
+                    ${renderGenericTimerBlock(480, "مؤقت التهدئة والإطالات (8 دقائق)")}
+                </div>
+            `;
+        }
+
+        // GENERIC TIMER
+        function renderGenericTimerBlock(totalSeconds, title) {
+            return `
+                <div class="bg-darkBg rounded-2xl p-6 border border-gold/30 flex flex-col items-center justify-center space-y-4 no-print shadow-xl">
+                    <span class="text-xs text-gold uppercase font-bold tracking-wider">${title}</span>
+                    <div class="text-5xl font-black font-mono gold-text-gradient tracking-widest" id="genericTimerDisplay">
+                        ${String(Math.floor(totalSeconds/60)).padStart(2,'0')}:00
+                    </div>
+                    <div class="flex gap-3 w-full max-w-xs">
+                        <button id="genericStartBtn" onclick="toggleGenericTimer(${totalSeconds})" class="flex-1 py-3 rounded-xl bg-gold text-black font-extrabold text-sm shadow-goldGlow hover:opacity-90 transition-all">
+                            <i class="fa-solid fa-play ml-1"></i> بدء المؤقت
+                        </button>
+                        <button onclick="resetGenericTimer(${totalSeconds})" class="px-4 py-3 rounded-xl bg-cardBg border border-gold/30 text-gold font-bold text-sm hover:bg-gold/10">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleGenericTimer(totalSeconds) {
+            const btn = document.getElementById('genericStartBtn');
+            const display = document.getElementById('genericTimerDisplay');
+
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i> استئناف';
+            } else {
+                if (activeTimerSeconds >= totalSeconds) activeTimerSeconds = 0;
+                isTimerRunning = true;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-pause ml-1"></i> إيقاف مؤقت';
+
+                timerInterval = setInterval(() => {
+                    activeTimerSeconds++;
+                    const rem = Math.max(0, totalSeconds - activeTimerSeconds);
+                    const m = Math.floor(rem / 60);
+                    const s = rem % 60;
+                    if (display) display.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+                    if (activeTimerSeconds >= totalSeconds) {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        playSuccessFanfare();
+                        alert("انتهى مؤقت هذه المحطة بنجاح!");
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetGenericTimer(totalSeconds) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            activeTimerSeconds = 0;
+            const display = document.getElementById('genericTimerDisplay');
+            const btn = document.getElementById('genericStartBtn');
+            const m = Math.floor(totalSeconds / 60);
+            if (display) display.innerText = `${String(m).padStart(2,'0')}:00`;
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-play ml-1"></i> بدء المؤقت';
+        }
+
+        // CELEBRATION & MODAL
+        function triggerGoldCelebration() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    size: Math.random() * 6 + 2,
+                    color: Math.random() > 0.5 ? '#D4AF37' : '#F5D76E',
+                    alpha: 1
+                });
+            }
+
+            let animId;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.alpha -= 0.02;
+                    if (p.alpha > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.globalAlpha = p.alpha;
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                });
+                if (alive) {
+                    animId = requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    cancelAnimationFrame(animId);
+                }
+            }
+            animate();
+        }
+
+        function showModal(title, desc, icon) {
+            document.getElementById('achievementTitle').innerText = title;
+            document.getElementById('achievementDesc').innerText = desc;
+            document.getElementById('achievementIcon').className = `fa-solid ${icon}`;
+            document.getElementById('achievementModal').classList.remove('hidden');
+            playSuccessFanfare();
+        }
+
+        function closeModal() {
+            document.getElementById('achievementModal').classList.add('hidden');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+        });
+    </script>
+</body>
+</html>
